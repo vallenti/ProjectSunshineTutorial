@@ -22,6 +22,7 @@ import android.widget.ListView;
 import java.io.*;
 import java.net.*;
 import android.util.Log;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -37,7 +38,7 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
     public ArrayAdapter<String> mForecastAdapter;
-
+    private ShareActionProvider mShareActionProvider;
     public ForecastFragment() {
     }
 
@@ -50,11 +51,33 @@ public class ForecastFragment extends Fragment {
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            case R.id.show_map:
+                openPreferedLocationInMap();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
     }
+
+
+
+
+    private void openPreferedLocationInMap(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = prefs.getString("Postal Code", "94043");
+        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
+                .appendQueryParameter("q",location)
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
     private void updateWeather(){
         FetchWeatherTask weatherTask = new FetchWeatherTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
